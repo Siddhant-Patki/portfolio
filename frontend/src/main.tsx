@@ -4,7 +4,7 @@ import { initLenis } from '@lib/lenis';
 import App from './App';
 import './styles/globals.css';
 
-function Root(): React.JSX.Element {
+export function Root(): React.JSX.Element {
   useEffect(() => {
     const cleanup = initLenis();
     return cleanup;
