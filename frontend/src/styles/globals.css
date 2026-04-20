@@ -1,0 +1,69 @@
+@import "tailwindcss";
+
+@theme {
+  /* Typography */
+  --font-display: "Clash Display", system-ui, sans-serif;
+  --font-sans: system-ui, -apple-system, sans-serif;
+  --font-mono: "JetBrains Mono", "Fira Code", monospace;
+
+  /* Dark theme base */
+  --color-background: #0a0a0a;
+  --color-foreground: #fafafa;
+  --color-muted: #a1a1aa;
+  --color-muted-foreground: #71717a;
+  --color-border: #27272a;
+  --color-card: #111111;
+
+  /* Accent */
+  --color-primary: #6366f1;
+  --color-primary-hover: #4f46e5;
+
+  /* Terminal */
+  --color-terminal-green: #00ff41;
+  --color-terminal-bg: #0d1117;
+
+  /* Spacing scale extension */
+  --spacing-18: 4.5rem;
+  --spacing-88: 22rem;
+  --spacing-128: 32rem;
+}
+
+/* Global resets */
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html {
+  scroll-behavior: auto; /* Lenis handles smooth scroll */
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+body {
+  background-color: var(--color-background);
+  color: var(--color-foreground);
+  font-family: var(--font-sans);
+  overflow-x: hidden;
+}
+
+/* Hide default cursor — CustomCursor component replaces it */
+* {
+  cursor: none;
+}
+
+/* Restore cursor for inputs where custom cursor may not apply */
+input,
+textarea,
+select {
+  cursor: text;
+}
+
+/* Selection */
+::selection {
+  background-color: var(--color-primary);
+  color: var(--color-foreground);
+}
