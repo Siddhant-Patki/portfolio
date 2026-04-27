@@ -27,41 +27,112 @@ export function TimelineItem({ item, isLast = false }: TimelineItemProps): React
   }, []);
 
   return (
-    <div className="relative flex gap-6" data-testid="timeline-item" ref={ref}>
+    <div
+      style={{ position: 'relative', display: 'flex', gap: '24px' }}
+      data-testid="timeline-item"
+      ref={ref}
+    >
       {/* Timeline line */}
       {!isLast && (
-        <div className="absolute left-3 top-8 bottom-0 w-px bg-white/10" aria-hidden="true" />
+        <div
+          style={{
+            position: 'absolute',
+            left: '11px',
+            top: '32px',
+            bottom: 0,
+            width: '1px',
+            backgroundColor: 'rgba(255,255,255,0.08)',
+          }}
+          aria-hidden="true"
+        />
       )}
 
       {/* Dot */}
-      <div className="relative mt-1 flex-shrink-0">
-        <div className="h-6 w-6 rounded-full border-2 border-[var(--color-primary)] bg-[var(--color-background)]" />
+      <div style={{ position: 'relative', marginTop: '4px', flexShrink: 0 }}>
+        <div
+          style={{
+            width: '24px',
+            height: '24px',
+            borderRadius: '50%',
+            border: '2px solid #34d399',
+            backgroundColor: '#0f172a',
+          }}
+        />
       </div>
 
       {/* Content */}
       <motion.div
-        className="mb-12 flex-1"
+        style={{ marginBottom: '48px', flex: 1 }}
         initial={prefersReduced ? false : { opacity: 0, x: -24 }}
         whileInView={{ opacity: 1, x: 0 }}
         viewport={{ once: true, margin: '-40px' }}
         transition={{ duration: 0.5 }}
       >
-        <div className="flex flex-wrap items-baseline justify-between gap-2">
-          <h3 className="font-display text-xl font-semibold text-[var(--color-foreground)]">
+        <div
+          style={{
+            display: 'flex',
+            flexWrap: 'wrap',
+            alignItems: 'baseline',
+            justifyContent: 'space-between',
+            gap: '8px',
+            marginBottom: '4px',
+          }}
+        >
+          <h3
+            style={{
+              fontFamily: 'var(--font-display)',
+              fontSize: '20px',
+              fontWeight: 600,
+              color: '#d1d5db',
+            }}
+          >
             {item.role}
           </h3>
-          <span className="font-mono text-xs text-[var(--color-foreground)]/40">{item.period}</span>
+          <span
+            style={{
+              fontFamily: 'var(--font-mono)',
+              fontSize: '12px',
+              color: 'rgba(209,213,219,0.35)',
+            }}
+          >
+            {item.period}
+          </span>
         </div>
 
-        <p className="mb-4 text-sm font-medium text-[var(--color-primary)]">
+        <p style={{ marginBottom: '16px', fontSize: '14px', fontWeight: 500, color: '#34d399' }}>
           {item.company} · {item.location}
         </p>
 
-        <ul className="mb-6 space-y-2">
+        <ul
+          style={{
+            marginBottom: '24px',
+            display: 'flex',
+            flexDirection: 'column',
+            gap: '8px',
+            paddingLeft: 0,
+            listStyle: 'none',
+          }}
+        >
           {item.description.map((point, i) => (
-            <li key={i} className="flex gap-2 text-sm text-[var(--color-foreground)]/70">
+            <li
+              key={i}
+              style={{
+                display: 'flex',
+                gap: '8px',
+                fontSize: '14px',
+                color: 'rgba(209,213,219,0.72)',
+                lineHeight: 1.6,
+              }}
+            >
               <span
-                className="mt-1.5 h-1 w-1 flex-shrink-0 rounded-full bg-[var(--color-primary)]"
+                style={{
+                  marginTop: '8px',
+                  width: '4px',
+                  height: '4px',
+                  flexShrink: 0,
+                  borderRadius: '50%',
+                  backgroundColor: '#34d399',
+                }}
                 aria-hidden="true"
               />
               {point}
@@ -70,18 +141,26 @@ export function TimelineItem({ item, isLast = false }: TimelineItemProps): React
         </ul>
 
         {item.metrics.length > 0 && (
-          <div className="mb-4 flex gap-8">
+          <div style={{ marginBottom: '16px', display: 'flex', gap: '32px', flexWrap: 'wrap' }}>
             {item.metrics.map((metric, i) => (
               <MetricCounter key={i} {...metric} inView={inView} />
             ))}
           </div>
         )}
 
-        <div className="flex flex-wrap gap-2">
+        <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px' }}>
           {item.tech.map((t) => (
             <span
               key={t}
-              className="rounded-full border border-white/10 px-3 py-1 font-mono text-xs text-[var(--color-foreground)]/50"
+              style={{
+                padding: '3px 12px',
+                borderRadius: '100px',
+                border: '1px solid rgba(255,255,255,0.08)',
+                fontFamily: 'var(--font-mono)',
+                fontSize: '11px',
+                color: 'rgba(209,213,219,0.45)',
+                backgroundColor: 'rgba(255,255,255,0.04)',
+              }}
             >
               {t}
             </span>

@@ -1,34 +1,15 @@
-@import "tailwindcss";
+@import 'tailwindcss';
 
 @theme {
-  /* Typography */
-  --font-display: "Clash Display", system-ui, sans-serif;
-  --font-sans: system-ui, -apple-system, sans-serif;
-  --font-mono: "JetBrains Mono", "Fira Code", monospace;
-
-  /* Dark theme base */
-  --color-background: #0a0a0a;
-  --color-foreground: #fafafa;
-  --color-muted: #a1a1aa;
-  --color-muted-foreground: #71717a;
-  --color-border: #27272a;
-  --color-card: #111111;
-
-  /* Accent */
-  --color-primary: #6366f1;
-  --color-primary-hover: #4f46e5;
-
-  /* Terminal */
-  --color-terminal-green: #00ff41;
-  --color-terminal-bg: #0d1117;
-
-  /* Spacing scale extension */
-  --spacing-18: 4.5rem;
-  --spacing-88: 22rem;
-  --spacing-128: 32rem;
+  --font-sans: 'DM Sans', system-ui, sans-serif;
+  --font-mono: 'IBM Plex Mono', 'Courier New', monospace;
+  --color-background: #0f172a;
+  --color-foreground: #d1d5db;
+  --color-primary: #34d399;
+  --color-card: #1e293b;
+  --color-muted: #6b7280;
 }
 
-/* Global resets */
 *,
 *::before,
 *::after {
@@ -38,32 +19,117 @@
 }
 
 html {
-  scroll-behavior: auto; /* Lenis handles smooth scroll */
+  scroll-behavior: auto;
   -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
 }
 
 body {
-  background-color: var(--color-background);
-  color: var(--color-foreground);
-  font-family: var(--font-sans);
+  background-color: #0f172a;
+  color: #d1d5db;
+  font-family: 'DM Sans', system-ui, sans-serif;
   overflow-x: hidden;
+  background-image: radial-gradient(circle, rgba(255, 255, 255, 0.025) 1px, transparent 1px);
+  background-size: 32px 32px;
 }
 
-/* Hide default cursor — CustomCursor component replaces it */
-* {
-  cursor: none;
+
+:focus-visible {
+  outline: 2px solid #34d399;
+  outline-offset: 2px;
+  border-radius: 4px;
 }
 
-/* Restore cursor for inputs where custom cursor may not apply */
-input,
-textarea,
-select {
-  cursor: text;
+button,
+a,
+[role='button'] {
+  touch-action: manipulation;
 }
 
-/* Selection */
 ::selection {
-  background-color: var(--color-primary);
-  color: var(--color-foreground);
+  background-color: rgba(52, 211, 153, 0.25);
+}
+
+::-webkit-scrollbar {
+  width: 4px;
+}
+::-webkit-scrollbar-track {
+  background: #0f172a;
+}
+::-webkit-scrollbar-thumb {
+  background: rgba(52, 211, 153, 0.3);
+  border-radius: 2px;
+}
+
+/* ── Pointer-tracked gradient border glow ───────────────────────────────── */
+/* Each card sets its own --x/--y (card-relative px) on mousemove.           */
+/* App.tsx sets --xp/--yp (0-1 viewport) for hue rainbow shift.              */
+/* Cards add data-glow="" and can override --glow-base / --glow-spread.      */
+
+[data-glow] {
+  /* Default cursor to off-screen so no glow shows before first hover */
+  --x: -9999;
+  --y: -9999;
+
+  /* Tuneable per card via inline style */
+  --glow-base:       0;     /* start hue (0 = red) */
+  --glow-spread:     360;   /* hue shift range across viewport width */
+  --glow-saturation: 100;
+  --glow-lightness:  50;
+  --glow-size:       150;   /* spotlight radius px */
+  --glow-border:     2;     /* border thickness px */
+  --bg-spot-opacity:     0.1;
+  --border-spot-opacity: 1;
+  --border-light-opacity: 1;
+
+  /* Computed */
+  --hue:            calc(var(--glow-base) + (var(--xp, 0) * var(--glow-spread)));
+  --border-size:    calc(var(--glow-border) * 1px);
+  --spotlight-size: calc(var(--glow-size) * 1px);
+
+  /* Background spotlight — card-local coordinates, no fixed attachment */
+  background-image: radial-gradient(
+    var(--spotlight-size) var(--spotlight-size) at
+    calc(var(--x) * 1px) calc(var(--y) * 1px),
+    hsl(var(--hue) calc(var(--glow-saturation) * 1%) calc(var(--glow-lightness) * 1%) / var(--bg-spot-opacity)),
+    transparent
+  );
+}
+
+[data-glow]::before,
+[data-glow]::after {
+  pointer-events: none;
+  content: '';
+  position: absolute;
+  inset: calc(var(--border-size) * -1);
+  border: var(--border-size) solid transparent;
+  border-radius: inherit;
+  -webkit-mask: linear-gradient(transparent, transparent), linear-gradient(white, white);
+          mask: linear-gradient(transparent, transparent), linear-gradient(white, white);
+  -webkit-mask-clip: padding-box, border-box;
+          mask-clip: padding-box, border-box;
+  -webkit-mask-composite: source-in, xor;
+          mask-composite: intersect;
+}
+
+/* Coloured border glow */
+[data-glow]::before {
+  background-image: radial-gradient(
+    calc(var(--spotlight-size) * 0.75) calc(var(--spotlight-size) * 0.75) at
+    calc(var(--x) * 1px) calc(var(--y) * 1px),
+    hsl(var(--hue) calc(var(--glow-saturation) * 1%) 50% / var(--border-spot-opacity)),
+    transparent 100%
+  );
+  filter: brightness(2);
+  z-index: 2;
+}
+
+/* White specular shine */
+[data-glow]::after {
+  background-image: radial-gradient(
+    calc(var(--spotlight-size) * 0.5) calc(var(--spotlight-size) * 0.5) at
+    calc(var(--x) * 1px) calc(var(--y) * 1px),
+    hsl(0 100% 100% / var(--border-light-opacity)),
+    transparent 100%
+  );
+  z-index: 3;
 }

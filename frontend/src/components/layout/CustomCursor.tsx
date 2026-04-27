@@ -12,8 +12,8 @@ export function CustomCursor(): React.JSX.Element {
   const dotX = useSpring(mouseX, { damping: 28, stiffness: 400, mass: 0.5 });
   const dotY = useSpring(mouseY, { damping: 28, stiffness: 400, mass: 0.5 });
 
-  const ringX = useSpring(mouseX, { damping: 35, stiffness: 200, mass: 0.8 });
-  const ringY = useSpring(mouseY, { damping: 35, stiffness: 200, mass: 0.8 });
+  const ringX = useSpring(mouseX, { damping: 22, stiffness: 150, mass: 0.8 });
+  const ringY = useSpring(mouseY, { damping: 22, stiffness: 150, mass: 0.8 });
 
   useEffect(() => {
     if (prefersReduced) return;
@@ -45,32 +45,49 @@ export function CustomCursor(): React.JSX.Element {
       {/* Inner dot */}
       <motion.div
         data-testid="cursor-dot"
-        className="pointer-events-none fixed left-0 top-0 z-[9999] rounded-full bg-[var(--color-primary)]"
-        style={{ x: dotX, y: dotY }}
+        style={{
+          pointerEvents: 'none',
+          position: 'fixed',
+          left: 0,
+          top: 0,
+          zIndex: 9999,
+          borderRadius: '50%',
+          backgroundColor: '#34d399',
+          x: dotX,
+          y: dotY,
+        }}
         animate={{
-          width: isHovering ? 6 : 8,
-          height: isHovering ? 6 : 8,
+          width: isHovering ? 10 : 7,
+          height: isHovering ? 10 : 7,
           translateX: '-50%',
           translateY: '-50%',
           opacity: isVisible ? 1 : 0,
         }}
-        transition={{ duration: 0.15 }}
+        transition={{ duration: 0.12 }}
       />
 
-      {/* Outer ring */}
+      {/* Outer ring — lags behind for a fluid feel */}
       <motion.div
         data-testid="cursor-ring"
-        className="pointer-events-none fixed left-0 top-0 z-[9998] rounded-full border border-[var(--color-primary)]"
-        style={{ x: ringX, y: ringY }}
+        style={{
+          pointerEvents: 'none',
+          position: 'fixed',
+          left: 0,
+          top: 0,
+          zIndex: 9998,
+          borderRadius: '50%',
+          border: `1.5px solid ${isHovering ? 'rgba(52,211,153,0.9)' : 'rgba(52,211,153,0.45)'}`,
+          x: ringX,
+          y: ringY,
+        }}
         animate={{
-          width: isHovering ? 48 : 32,
-          height: isHovering ? 48 : 32,
+          width: isHovering ? 52 : 34,
+          height: isHovering ? 52 : 34,
           translateX: '-50%',
           translateY: '-50%',
-          opacity: isVisible ? 0.5 : 0,
-          borderColor: isHovering ? 'var(--color-terminal-green)' : 'var(--color-primary)',
+          opacity: isVisible ? 1 : 0,
         }}
-        transition={{ duration: 0.2 }}
+        transition={{ duration: 0.22 }}
       />
     </>
   );

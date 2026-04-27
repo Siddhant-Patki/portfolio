@@ -1,6 +1,5 @@
-import { useState } from 'react';
+import { useState, useRef } from 'react';
 import { Send } from 'lucide-react';
-import { cn } from '@lib/cn';
 
 interface FormState {
   name: string;
@@ -13,32 +12,103 @@ interface ContactFormProps {
 }
 
 type SubmitStatus = 'idle' | 'loading' | 'success' | 'error';
+type FieldKey = keyof FormState;
+type FormErrors = { [K in FieldKey]?: string };
+
+const inputBase: React.CSSProperties = {
+  width: '100%',
+  padding: '14px 16px',
+  borderRadius: '8px',
+  border: '1px solid rgba(255,255,255,0.1)',
+  backgroundColor: 'rgba(255,255,255,0.03)',
+  color: '#d1d5db',
+  fontSize: '15px',
+  outline: 'none',
+  boxSizing: 'border-box',
+  fontFamily: 'inherit',
+  minHeight: '44px',
+  transition: 'border-color 0.2s ease, box-shadow 0.2s ease',
+};
+
+const inputError: React.CSSProperties = {
+  ...inputBase,
+  border: '1px solid rgba(239,68,68,0.5)',
+};
+
+const labelStyle: React.CSSProperties = {
+  display: 'block',
+  marginBottom: '8px',
+  fontSize: '13px',
+  fontWeight: 500,
+  color: 'rgba(209,213,219,0.6)',
+};
+
+function validateField(field: FieldKey, value: string): string | undefined {
+  if (field === 'name' && !value.trim()) return 'Name is required';
+  if (field === 'email') {
+    if (!value.trim()) return 'Email is required';
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value)) return 'Please enter a valid email address';
+  }
+  if (field === 'message') {
+    if (!value.trim()) return 'Message is required';
+    if (value.trim().length < 10) return 'Message must be at least 10 characters';
+  }
+  return undefined;
+}
 
 export function ContactForm({ onSubmit }: ContactFormProps): React.JSX.Element {
   const [form, setForm] = useState<FormState>({ name: '', email: '', message: '' });
-  const [errors, setErrors] = useState<Partial<FormState>>({});
+  const [errors, setErrors] = useState<FormErrors>({});
+  const [touched, setTouched] = useState<Set<FieldKey>>(new Set());
   const [status, setStatus] = useState<SubmitStatus>('idle');
 
-  function validate(): boolean {
-    const next: Partial<FormState> = {};
-    if (!form.name.trim()) next.name = 'Name is required';
-    if (!form.email.trim()) {
-      next.email = 'Email is required';
-    } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(form.email)) {
-      next.email = 'Please enter a valid email';
+  const nameRef = useRef<HTMLInputElement>(null);
+  const emailRef = useRef<HTMLInputElement>(null);
+  const messageRef = useRef<HTMLTextAreaElement>(null);
+
+  function handleChange(field: FieldKey, value: string): void {
+    setForm((f) => ({ ...f, [field]: value }));
+    if (touched.has(field)) {
+      const error = validateField(field, value);
+      setErrors((e) => ({ ...e, [field]: error }));
     }
-    if (!form.message.trim()) {
-      next.message = 'Message is required';
-    } else if (form.message.trim().length < 10) {
-      next.message = 'Message must be at least 10 characters';
-    }
+  }
+
+  function handleBlur(field: FieldKey): void {
+    setTouched((t) => new Set(t).add(field));
+    const error = validateField(field, form[field]);
+    setErrors((e) => ({ ...e, [field]: error }));
+  }
+
+  function validateAll(): boolean {
+    const next: FormErrors = {};
+    const nameErr = validateField('name', form.name);
+    const emailErr = validateField('email', form.email);
+    const msgErr = validateField('message', form.message);
+    if (nameErr) next.name = nameErr;
+    if (emailErr) next.email = emailErr;
+    if (msgErr) next.message = msgErr;
     setErrors(next);
-    return Object.keys(next).length === 0;
+    setTouched(new Set(['name', 'email', 'message'] as FieldKey[]));
+
+    if (next.name) {
+      nameRef.current?.focus();
+      return false;
+    }
+    if (next.email) {
+      emailRef.current?.focus();
+      return false;
+    }
+    if (next.message) {
+      messageRef.current?.focus();
+      return false;
+    }
+    return true;
   }
 
   async function handleSubmit(e: React.FormEvent): Promise<void> {
     e.preventDefault();
-    if (!validate()) return;
+    if (!validateAll()) return;
 
     setStatus('loading');
     try {
@@ -55,6 +125,7 @@ export function ContactForm({ onSubmit }: ContactFormProps): React.JSX.Element {
       }
       setStatus('success');
       setForm({ name: '', email: '', message: '' });
+      setTouched(new Set());
     } catch {
       setStatus('error');
     }
@@ -64,126 +135,173 @@ export function ContactForm({ onSubmit }: ContactFormProps): React.JSX.Element {
     return (
       <div
         data-testid="form-success"
-        className="rounded-xl border border-[var(--color-terminal-green)]/20 bg-[var(--color-terminal-green)]/5 p-8 text-center"
+        style={{
+          padding: '32px',
+          borderRadius: '12px',
+          border: '1px solid rgba(52,211,153,0.2)',
+          backgroundColor: 'rgba(52,211,153,0.05)',
+          textAlign: 'center',
+        }}
       >
-        <p className="mb-2 text-lg font-medium text-[var(--color-foreground)]">Message sent! ✓</p>
-        <p className="text-sm text-[var(--color-foreground)]/60">
+        <p style={{ marginBottom: '8px', fontSize: '17px', fontWeight: 500, color: '#d1d5db' }}>
+          Message sent ✓
+        </p>
+        <p style={{ fontSize: '14px', color: 'rgba(209,213,219,0.5)' }}>
           I&apos;ll get back to you as soon as possible.
         </p>
       </div>
     );
   }
 
+  const showError = (field: FieldKey) => touched.has(field) && !!errors[field];
+
   return (
     <form
       onSubmit={(e) => void handleSubmit(e)}
       data-testid="contact-form"
       noValidate
-      className="space-y-6"
+      style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}
     >
       <div>
-        <label
-          htmlFor="contact-name"
-          className="mb-2 block text-sm font-medium text-[var(--color-foreground)]/70"
-        >
-          Name
+        <label htmlFor="contact-name" style={labelStyle}>
+          Name{' '}
+          <span style={{ color: '#f87171' }} aria-hidden="true">
+            *
+          </span>
         </label>
         <input
+          ref={nameRef}
           id="contact-name"
           type="text"
           value={form.name}
-          onChange={(e) => setForm((f) => ({ ...f, name: e.target.value }))}
-          className={cn(
-            'w-full rounded-lg border bg-white/[0.03] px-4 py-3 text-sm text-[var(--color-foreground)] outline-none transition-colors placeholder:text-white/20 focus:ring-1 focus:ring-[var(--color-primary)]',
-            errors.name
-              ? 'border-red-500/50'
-              : 'border-white/10 focus:border-[var(--color-primary)]/50'
-          )}
+          onChange={(e) => handleChange('name', e.target.value)}
+          onBlur={() => handleBlur('name')}
+          style={showError('name') ? inputError : inputBase}
           placeholder="Your name"
-          aria-describedby={errors.name ? 'name-error' : undefined}
-          aria-invalid={!!errors.name}
+          autoComplete="name"
+          required
+          aria-required="true"
+          aria-describedby={showError('name') ? 'name-error' : undefined}
+          aria-invalid={showError('name')}
         />
-        {errors.name && (
-          <p id="name-error" className="mt-1.5 text-xs text-red-400" role="alert">
+        {showError('name') && (
+          <p
+            id="name-error"
+            style={{ marginTop: '6px', fontSize: '12px', color: '#f87171' }}
+            role="alert"
+          >
             {errors.name}
           </p>
         )}
       </div>
 
       <div>
-        <label
-          htmlFor="contact-email"
-          className="mb-2 block text-sm font-medium text-[var(--color-foreground)]/70"
-        >
-          Email
+        <label htmlFor="contact-email" style={labelStyle}>
+          Email{' '}
+          <span style={{ color: '#f87171' }} aria-hidden="true">
+            *
+          </span>
         </label>
         <input
+          ref={emailRef}
           id="contact-email"
           type="email"
           value={form.email}
-          onChange={(e) => setForm((f) => ({ ...f, email: e.target.value }))}
-          className={cn(
-            'w-full rounded-lg border bg-white/[0.03] px-4 py-3 text-sm text-[var(--color-foreground)] outline-none transition-colors placeholder:text-white/20 focus:ring-1 focus:ring-[var(--color-primary)]',
-            errors.email
-              ? 'border-red-500/50'
-              : 'border-white/10 focus:border-[var(--color-primary)]/50'
-          )}
+          onChange={(e) => handleChange('email', e.target.value)}
+          onBlur={() => handleBlur('email')}
+          style={showError('email') ? inputError : inputBase}
           placeholder="your@email.com"
-          aria-describedby={errors.email ? 'email-error' : undefined}
-          aria-invalid={!!errors.email}
+          autoComplete="email"
+          required
+          aria-required="true"
+          aria-describedby={showError('email') ? 'email-error' : undefined}
+          aria-invalid={showError('email')}
         />
-        {errors.email && (
-          <p id="email-error" className="mt-1.5 text-xs text-red-400" role="alert">
+        {showError('email') && (
+          <p
+            id="email-error"
+            style={{ marginTop: '6px', fontSize: '12px', color: '#f87171' }}
+            role="alert"
+          >
             {errors.email}
           </p>
         )}
       </div>
 
       <div>
-        <label
-          htmlFor="contact-message"
-          className="mb-2 block text-sm font-medium text-[var(--color-foreground)]/70"
-        >
-          Message
+        <label htmlFor="contact-message" style={labelStyle}>
+          Message{' '}
+          <span style={{ color: '#f87171' }} aria-hidden="true">
+            *
+          </span>
         </label>
         <textarea
+          ref={messageRef}
           id="contact-message"
           value={form.message}
-          onChange={(e) => setForm((f) => ({ ...f, message: e.target.value }))}
+          onChange={(e) => handleChange('message', e.target.value)}
+          onBlur={() => handleBlur('message')}
           rows={5}
-          className={cn(
-            'w-full resize-none rounded-lg border bg-white/[0.03] px-4 py-3 text-sm text-[var(--color-foreground)] outline-none transition-colors placeholder:text-white/20 focus:ring-1 focus:ring-[var(--color-primary)]',
-            errors.message
-              ? 'border-red-500/50'
-              : 'border-white/10 focus:border-[var(--color-primary)]/50'
-          )}
+          style={
+            showError('message')
+              ? { ...inputError, resize: 'none' }
+              : { ...inputBase, resize: 'none' }
+          }
           placeholder="What's on your mind?"
-          aria-describedby={errors.message ? 'message-error' : undefined}
-          aria-invalid={!!errors.message}
+          autoComplete="off"
+          required
+          aria-required="true"
+          aria-describedby={showError('message') ? 'message-error' : undefined}
+          aria-invalid={showError('message')}
         />
-        {errors.message && (
-          <p id="message-error" className="mt-1.5 text-xs text-red-400" role="alert">
+        {showError('message') && (
+          <p
+            id="message-error"
+            style={{ marginTop: '6px', fontSize: '12px', color: '#f87171' }}
+            role="alert"
+          >
             {errors.message}
           </p>
         )}
       </div>
 
       {status === 'error' && (
-        <p className="text-sm text-red-400" role="alert">
-          Something went wrong. Please try again or email me directly.
+        <p style={{ fontSize: '13px', color: '#f87171' }} role="alert" aria-live="polite">
+          Something went wrong — please try again or email me directly at{' '}
+          <a href="mailto:sidpatki123@gmail.com" style={{ color: '#34d399' }}>
+            sidpatki123@gmail.com
+          </a>
         </p>
       )}
 
       <button
         type="submit"
         disabled={status === 'loading'}
-        className="flex w-full items-center justify-center gap-2 rounded-lg bg-[var(--color-primary)] px-6 py-3 text-sm font-semibold text-white transition-opacity hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-50"
+        style={{
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          gap: '8px',
+          width: '100%',
+          padding: '14px 24px',
+          borderRadius: '8px',
+          border: 'none',
+          backgroundColor: '#34d399',
+          color: '#0f172a',
+          fontSize: '15px',
+          fontWeight: 600,
+          cursor: status === 'loading' ? 'not-allowed' : 'pointer',
+          opacity: status === 'loading' ? 0.6 : 1,
+          transition: 'opacity 0.2s ease, background-color 0.2s ease',
+          fontFamily: 'inherit',
+          minHeight: '44px',
+        }}
       >
         {status === 'loading' ? (
-          'Sending...'
+          'Sending…'
         ) : (
           <>
-            <Send size={16} />
+            <Send size={15} />
             Send Message
           </>
         )}

@@ -109,34 +109,91 @@ export function FakeTerminal(): React.JSX.Element {
   return (
     <div
       data-testid="fake-terminal"
-      className="overflow-hidden rounded-lg border border-white/10 bg-[#0a0a0a] font-mono text-sm"
+      style={{
+        overflow: 'hidden',
+        borderRadius: '10px',
+        border: '1px solid rgba(255,255,255,0.1)',
+        backgroundColor: '#1a2540',
+        fontFamily: 'var(--font-mono)',
+        fontSize: '13px',
+      }}
     >
       {/* Chrome */}
-      <div className="flex items-center gap-2 border-b border-white/10 px-4 py-3">
-        <span className="h-3 w-3 rounded-full bg-[#ff5f57]" aria-hidden="true" />
-        <span className="h-3 w-3 rounded-full bg-[#febc2e]" aria-hidden="true" />
-        <span className="h-3 w-3 rounded-full bg-[#28c840]" aria-hidden="true" />
-        <span className="ml-2 text-xs text-white/30">skills — bash</span>
+      <div
+        style={{
+          display: 'flex',
+          alignItems: 'center',
+          gap: '8px',
+          borderBottom: '1px solid rgba(255,255,255,0.08)',
+          padding: '12px 16px',
+        }}
+      >
+        <span
+          style={{
+            width: '12px',
+            height: '12px',
+            borderRadius: '50%',
+            backgroundColor: '#ff5f57',
+            flexShrink: 0,
+          }}
+          aria-hidden="true"
+        />
+        <span
+          style={{
+            width: '12px',
+            height: '12px',
+            borderRadius: '50%',
+            backgroundColor: '#febc2e',
+            flexShrink: 0,
+          }}
+          aria-hidden="true"
+        />
+        <span
+          style={{
+            width: '12px',
+            height: '12px',
+            borderRadius: '50%',
+            backgroundColor: '#28c840',
+            flexShrink: 0,
+          }}
+          aria-hidden="true"
+        />
+        <span style={{ marginLeft: '8px', fontSize: '11px', color: 'rgba(255,255,255,0.3)' }}>
+          skills — bash
+        </span>
       </div>
 
       {/* Output */}
-      <div ref={outputRef} className="h-72 overflow-y-auto p-4">
+      <div ref={outputRef} style={{ height: '288px', overflowY: 'auto', padding: '16px' }}>
         <TerminalOutput lines={history} />
       </div>
 
       {/* Input */}
       <form
         onSubmit={handleSubmit}
-        className="flex items-center border-t border-white/10 px-4 py-3"
+        style={{
+          display: 'flex',
+          alignItems: 'center',
+          borderTop: '1px solid rgba(255,255,255,0.08)',
+          padding: '12px 16px',
+        }}
       >
-        <span className="mr-2 text-[var(--color-terminal-green)]">$</span>
+        <span style={{ marginRight: '8px', color: '#34d399', userSelect: 'none' }}>$</span>
         <input
           ref={inputRef}
           type="text"
           value={input}
           onChange={(e) => setInput(e.target.value)}
           onKeyDown={handleKeyDown}
-          className="flex-1 bg-transparent text-[var(--color-foreground)] outline-none placeholder:text-white/20"
+          style={{
+            flex: 1,
+            background: 'transparent',
+            border: 'none',
+            outline: 'none',
+            color: '#d1d5db',
+            fontFamily: 'var(--font-mono)',
+            fontSize: '13px',
+          }}
           placeholder="type a command..."
           aria-label="Terminal input"
           autoComplete="off"

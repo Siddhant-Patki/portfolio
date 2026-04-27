@@ -1,5 +1,5 @@
 import { useRef } from 'react';
-import { motion, useReducedMotion } from 'framer-motion';
+import { useMotionValue, useSpring, useTransform, motion, useReducedMotion } from 'framer-motion';
 import { ExternalLink } from 'lucide-react';
 import { GithubIcon } from '@components/ui/SocialIcons';
 import { TechBadge } from './TechBadge';
@@ -15,51 +15,131 @@ export function ProjectCard({ project, onExpand, index }: ProjectCardProps): Rea
   const prefersReduced = useReducedMotion();
   const cardRef = useRef<HTMLDivElement>(null);
 
+  const mouseX = useMotionValue(0);
+  const mouseY = useMotionValue(0);
+
+  const rawRotateX = useTransform(mouseY, [-0.5, 0.5], [7, -7]);
+  const rawRotateY = useTransform(mouseX, [-0.5, 0.5], [-7, 7]);
+  const rotateX = useSpring(rawRotateX, { stiffness: 180, damping: 24, restDelta: 0.001 });
+  const rotateY = useSpring(rawRotateY, { stiffness: 180, damping: 24, restDelta: 0.001 });
+
   function handleMouseMove(e: React.MouseEvent<HTMLDivElement>): void {
-    if (prefersReduced || !cardRef.current) return;
-    const rect = cardRef.current.getBoundingClientRect();
-    const x = e.clientX - rect.left - rect.width / 2;
-    const y = e.clientY - rect.top - rect.height / 2;
-    const rotateX = -(y / rect.height) * 8;
-    const rotateY = (x / rect.width) * 8;
-    cardRef.current.style.transform = `perspective(1000px) rotateX(${rotateX}deg) rotateY(${rotateY}deg)`;
+    if (prefersReduced) return;
+    const el = cardRef.current;
+    if (!el) return;
+    const rect = el.getBoundingClientRect();
+    const relX = e.clientX - rect.left;
+    const relY = e.clientY - rect.top;
+    // Card-local coords for the glow — fixes misalignment caused by CSS transforms
+    el.style.setProperty('--x', String(Math.round(relX)));
+    el.style.setProperty('--y', String(Math.round(relY)));
+    mouseX.set(relX / rect.width - 0.5);
+    mouseY.set(relY / rect.height - 0.5);
   }
 
   function handleMouseLeave(): void {
-    if (!cardRef.current) return;
-    cardRef.current.style.transform = 'perspective(1000px) rotateX(0deg) rotateY(0deg)';
+    const el = cardRef.current;
+    if (el) {
+      // Remove so CSS falls back to [data-glow]'s --x: -9999 default
+      el.style.removeProperty('--x');
+      el.style.removeProperty('--y');
+    }
+    mouseX.set(0);
+    mouseY.set(0);
   }
 
   return (
     <motion.div
-      data-testid="project-card"
       ref={cardRef}
+      data-testid="project-card"
+      data-glow=""
       initial={prefersReduced ? false : { opacity: 0, y: 40 }}
       whileInView={{ opacity: 1, y: 0 }}
       viewport={{ once: true, margin: '-40px' }}
-      transition={{ duration: 0.5, delay: index * 0.1 }}
       onMouseMove={handleMouseMove}
       onMouseLeave={handleMouseLeave}
-      style={{ transformStyle: 'preserve-3d' }}
-      className="group relative flex flex-col overflow-hidden rounded-xl border border-white/10 bg-white/[0.03] p-6 transition-colors hover:border-white/20"
+      style={{
+        rotateX: prefersReduced ? 0 : rotateX,
+        rotateY: prefersReduced ? 0 : rotateY,
+        transformPerspective: 1000,
+        transformStyle: 'preserve-3d',
+        position: 'relative',
+        display: 'flex',
+        flexDirection: 'column',
+        borderRadius: '16px',
+        border: '1px solid rgba(255,255,255,0.1)',
+        backgroundColor: 'rgba(255,255,255,0.04)',
+        padding: '28px',
+      }}
+      whileHover={
+        prefersReduced
+          ? {}
+          : {
+              borderColor: 'rgba(52,211,153,0.35)',
+              backgroundColor: 'rgba(52,211,153,0.04)',
+              boxShadow: '0 0 40px rgba(52,211,153,0.12), 0 8px 32px rgba(0,0,0,0.4)',
+            }
+      }
+      transition={{
+        opacity: { duration: 0.55, delay: index * 0.04, ease: [0.16, 1, 0.3, 1] },
+        y: { duration: 0.55, delay: index * 0.04, ease: [0.16, 1, 0.3, 1] },
+        borderColor: { duration: 0.22, ease: 'easeOut' },
+        backgroundColor: { duration: 0.22, ease: 'easeOut' },
+        boxShadow: { duration: 0.25, ease: 'easeOut' },
+      }}
     >
-      {/* Spotlight */}
-      <div className="pointer-events-none absolute inset-0 opacity-0 transition-opacity group-hover:opacity-100">
-        <div className="absolute inset-0 rounded-xl bg-gradient-to-br from-[var(--color-primary)]/5 to-transparent" />
-      </div>
-
-      <div className="mb-4 flex items-start justify-between">
-        <h3 className="font-display text-xl font-semibold text-[var(--color-foreground)]">
-          {project.title}
-        </h3>
-        <div className="flex items-center gap-2">
+      {/* Header row */}
+      <div
+        style={{
+          marginBottom: '20px',
+          display: 'flex',
+          alignItems: 'flex-start',
+          justifyContent: 'space-between',
+          gap: '16px',
+        }}
+      >
+        <div>
+          <p
+            style={{
+              marginBottom: '6px',
+              fontFamily: 'var(--font-mono)',
+              fontSize: '10px',
+              fontWeight: 500,
+              letterSpacing: '0.18em',
+              textTransform: 'uppercase',
+              color: '#34d399',
+            }}
+          >
+            {project.featured ? 'Featured project' : 'Project'}
+          </p>
+          <h3
+            style={{
+              fontFamily: 'var(--font-display)',
+              fontSize: '22px',
+              fontWeight: 700,
+              color: '#d1d5db',
+              lineHeight: 1.2,
+            }}
+          >
+            {project.title}
+          </h3>
+        </div>
+        <div
+          style={{
+            display: 'flex',
+            alignItems: 'center',
+            gap: '12px',
+            paddingTop: '4px',
+            flexShrink: 0,
+          }}
+        >
           {project.links.github && (
             <a
               href={project.links.github}
               target="_blank"
               rel="noopener noreferrer"
               onClick={(e) => e.stopPropagation()}
-              className="text-[var(--color-foreground)]/40 transition-colors hover:text-[var(--color-foreground)]"
+              style={{ color: 'rgba(209,213,219,0.3)', textDecoration: 'none' }}
               aria-label={`${project.title} GitHub repository`}
             >
               <GithubIcon size={18} />
@@ -71,7 +151,7 @@ export function ProjectCard({ project, onExpand, index }: ProjectCardProps): Rea
               target="_blank"
               rel="noopener noreferrer"
               onClick={(e) => e.stopPropagation()}
-              className="text-[var(--color-foreground)]/40 transition-colors hover:text-[var(--color-foreground)]"
+              style={{ color: 'rgba(209,213,219,0.3)', textDecoration: 'none' }}
               aria-label={`${project.title} live site`}
             >
               <ExternalLink size={18} />
@@ -80,12 +160,29 @@ export function ProjectCard({ project, onExpand, index }: ProjectCardProps): Rea
         </div>
       </div>
 
-      <p className="mb-2 text-sm font-medium text-[var(--color-primary)]">{project.tagline}</p>
-      <p className="mb-6 flex-1 text-sm leading-relaxed text-[var(--color-foreground)]/60">
+      <p
+        style={{
+          marginBottom: '8px',
+          fontSize: '13px',
+          fontWeight: 500,
+          color: 'rgba(52,211,153,0.85)',
+        }}
+      >
+        {project.tagline}
+      </p>
+      <p
+        style={{
+          marginBottom: '24px',
+          fontSize: '14px',
+          lineHeight: 1.7,
+          color: 'rgba(209,213,219,0.65)',
+          flexGrow: 1,
+        }}
+      >
         {project.description}
       </p>
 
-      <div className="mb-4 flex flex-wrap gap-2">
+      <div style={{ marginBottom: '20px', display: 'flex', flexWrap: 'wrap', gap: '8px' }}>
         {project.tech.slice(0, 4).map((t) => (
           <TechBadge key={t} tech={t} />
         ))}
@@ -95,7 +192,20 @@ export function ProjectCard({ project, onExpand, index }: ProjectCardProps): Rea
       <button
         type="button"
         onClick={() => onExpand(project.id)}
-        className="mt-auto self-start text-xs font-medium text-[var(--color-primary)] transition-opacity hover:opacity-70"
+        style={{
+          display: 'inline-flex',
+          alignItems: 'center',
+          gap: '6px',
+          fontSize: '12px',
+          fontWeight: 500,
+          color: 'rgba(52,211,153,0.65)',
+          background: 'none',
+          border: 'none',
+          padding: 0,
+          cursor: 'pointer',
+          transition: 'color 0.2s ease',
+          fontFamily: 'inherit',
+        }}
         aria-label={`View ${project.title} case study`}
       >
         View case study →

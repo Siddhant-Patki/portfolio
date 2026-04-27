@@ -32,7 +32,13 @@ export function ProjectModal({ project, onClose }: ProjectModalProps): React.JSX
         <>
           {/* Backdrop */}
           <motion.div
-            className="fixed inset-0 z-[200] bg-black/80 backdrop-blur-sm"
+            style={{
+              position: 'fixed',
+              inset: 0,
+              zIndex: 200,
+              backgroundColor: 'rgba(0,0,0,0.8)',
+              backdropFilter: 'blur(4px)',
+            }}
             initial={prefersReduced ? false : { opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
@@ -46,28 +52,60 @@ export function ProjectModal({ project, onClose }: ProjectModalProps): React.JSX
             aria-modal="true"
             aria-labelledby="modal-title"
             data-testid="project-modal"
-            className="fixed inset-4 z-[201] overflow-y-auto rounded-2xl border border-white/10 bg-[#0d0d0d] md:inset-8 lg:inset-16"
+            style={{
+              position: 'fixed',
+              inset: '16px',
+              zIndex: 201,
+              overflowY: 'auto',
+              borderRadius: '16px',
+              border: '1px solid rgba(255,255,255,0.1)',
+              backgroundColor: '#1e293b',
+            }}
             initial={prefersReduced ? false : { opacity: 0, scale: 0.96 }}
             animate={{ opacity: 1, scale: 1 }}
             exit={{ opacity: 0, scale: 0.96 }}
             transition={{ duration: 0.25 }}
           >
-            <div className="p-8">
+            <div style={{ padding: '32px' }}>
               {/* Header */}
-              <div className="mb-8 flex items-start justify-between">
+              <div
+                style={{
+                  marginBottom: '32px',
+                  display: 'flex',
+                  alignItems: 'flex-start',
+                  justifyContent: 'space-between',
+                }}
+              >
                 <div>
                   <h2
                     id="modal-title"
-                    className="font-display mb-2 text-3xl font-bold text-[var(--color-foreground)]"
+                    style={{
+                      fontFamily: 'var(--font-display)',
+                      fontSize: '32px',
+                      fontWeight: 700,
+                      color: '#d1d5db',
+                      marginBottom: '8px',
+                    }}
                   >
                     {project.title}
                   </h2>
-                  <p className="text-[var(--color-primary)]">{project.tagline}</p>
+                  <p style={{ fontSize: '15px', color: '#34d399' }}>{project.tagline}</p>
                 </div>
                 <button
                   type="button"
                   onClick={onClose}
-                  className="ml-4 rounded-lg p-2 text-[var(--color-foreground)]/40 transition-colors hover:bg-white/5 hover:text-[var(--color-foreground)]"
+                  style={{
+                    marginLeft: '16px',
+                    padding: '11px',
+                    borderRadius: '8px',
+                    border: 'none',
+                    backgroundColor: 'transparent',
+                    color: 'rgba(209,213,219,0.4)',
+                    transition: 'color 0.2s ease, background-color 0.2s ease',
+                    flexShrink: 0,
+                    fontFamily: 'inherit',
+                    cursor: 'pointer',
+                  }}
                   aria-label="Close project modal"
                 >
                   <X size={22} />
@@ -75,13 +113,24 @@ export function ProjectModal({ project, onClose }: ProjectModalProps): React.JSX
               </div>
 
               {/* Links */}
-              <div className="mb-8 flex gap-4">
+              <div style={{ marginBottom: '32px', display: 'flex', gap: '12px', flexWrap: 'wrap' }}>
                 {project.links.github && (
                   <a
                     href={project.links.github}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="flex items-center gap-2 rounded-lg border border-white/10 px-4 py-2 text-sm text-[var(--color-foreground)]/70 transition-colors hover:border-white/20 hover:text-[var(--color-foreground)]"
+                    style={{
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: '8px',
+                      padding: '8px 16px',
+                      borderRadius: '8px',
+                      border: '1px solid rgba(255,255,255,0.1)',
+                      fontSize: '14px',
+                      color: 'rgba(209,213,219,0.65)',
+                      textDecoration: 'none',
+                      transition: 'all 0.2s ease',
+                    }}
                   >
                     <GithubIcon size={16} />
                     View on GitHub
@@ -92,7 +141,18 @@ export function ProjectModal({ project, onClose }: ProjectModalProps): React.JSX
                     href={project.links.live}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="flex items-center gap-2 rounded-lg bg-[var(--color-primary)] px-4 py-2 text-sm text-white transition-opacity hover:opacity-90"
+                    style={{
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: '8px',
+                      padding: '8px 16px',
+                      borderRadius: '8px',
+                      backgroundColor: '#34d399',
+                      fontSize: '14px',
+                      color: '#0f172a',
+                      textDecoration: 'none',
+                      transition: 'opacity 0.2s ease',
+                    }}
                   >
                     <ExternalLink size={16} />
                     Live Site
@@ -101,39 +161,58 @@ export function ProjectModal({ project, onClose }: ProjectModalProps): React.JSX
               </div>
 
               {/* Case study */}
-              <div className="grid gap-8 md:grid-cols-3">
-                <div>
-                  <h3 className="mb-3 font-mono text-xs font-medium uppercase tracking-widest text-[var(--color-terminal-green)]">
-                    Problem
-                  </h3>
-                  <p className="text-sm leading-relaxed text-[var(--color-foreground)]/70">
-                    {project.problem}
-                  </p>
-                </div>
-                <div>
-                  <h3 className="mb-3 font-mono text-xs font-medium uppercase tracking-widest text-[var(--color-terminal-green)]">
-                    Solution
-                  </h3>
-                  <p className="text-sm leading-relaxed text-[var(--color-foreground)]/70">
-                    {project.solution}
-                  </p>
-                </div>
-                <div>
-                  <h3 className="mb-3 font-mono text-xs font-medium uppercase tracking-widest text-[var(--color-terminal-green)]">
-                    Impact
-                  </h3>
-                  <p className="text-sm leading-relaxed text-[var(--color-foreground)]/70">
-                    {project.impact}
-                  </p>
-                </div>
+              <div
+                style={{
+                  display: 'grid',
+                  gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))',
+                  gap: '32px',
+                  marginBottom: '32px',
+                }}
+              >
+                {[
+                  { label: 'Problem', text: project.problem },
+                  { label: 'Solution', text: project.solution },
+                  { label: 'Impact', text: project.impact },
+                ].map(({ label, text }) => (
+                  <div key={label}>
+                    <h3
+                      style={{
+                        marginBottom: '12px',
+                        fontFamily: 'var(--font-mono)',
+                        fontSize: '10px',
+                        fontWeight: 500,
+                        letterSpacing: '0.15em',
+                        textTransform: 'uppercase',
+                        color: '#34d399',
+                      }}
+                    >
+                      {label}
+                    </h3>
+                    <p
+                      style={{ fontSize: '14px', lineHeight: 1.7, color: 'rgba(209,213,219,0.65)' }}
+                    >
+                      {text}
+                    </p>
+                  </div>
+                ))}
               </div>
 
               {/* Tech stack */}
-              <div className="mt-8">
-                <h3 className="mb-4 font-mono text-xs font-medium uppercase tracking-widest text-[var(--color-foreground)]/40">
+              <div>
+                <h3
+                  style={{
+                    marginBottom: '16px',
+                    fontFamily: 'var(--font-mono)',
+                    fontSize: '10px',
+                    fontWeight: 500,
+                    letterSpacing: '0.15em',
+                    textTransform: 'uppercase',
+                    color: 'rgba(209,213,219,0.3)',
+                  }}
+                >
                   Tech Stack
                 </h3>
-                <div className="flex flex-wrap gap-2">
+                <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px' }}>
                   {project.tech.map((t) => (
                     <TechBadge key={t} tech={t} size="md" />
                   ))}

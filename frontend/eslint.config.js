@@ -24,7 +24,13 @@ export default defineConfig([
       ecmaVersion: 2022,
       globals: globals.browser,
       parserOptions: {
-        projectService: true,
+        projectService: {
+          allowDefaultProject: [
+            'playwright.config.ts',
+            '.storybook/*.ts',
+            'e2e/*.ts',
+          ],
+        },
         tsconfigRootDir: import.meta.dirname,
       },
     },

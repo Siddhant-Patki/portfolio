@@ -5,27 +5,68 @@ interface TerminalWindowProps {
   className?: string;
 }
 
-export function TerminalWindow({
-  children,
-  className = '',
-}: TerminalWindowProps): React.JSX.Element {
+export function TerminalWindow({ children }: TerminalWindowProps): React.JSX.Element {
   return (
     <div
       data-testid="terminal-window"
-      className={`overflow-hidden rounded-lg border border-white/10 bg-[#0d0d0d] font-mono text-sm ${className}`}
       role="region"
       aria-label="Terminal window"
+      style={{
+        overflow: 'hidden',
+        borderRadius: '12px',
+        border: '1px solid rgba(255,255,255,0.1)',
+        backgroundColor: '#1a2540',
+        fontFamily: 'var(--font-mono)',
+        fontSize: '13px',
+      }}
     >
       {/* Window chrome */}
-      <div className="flex items-center gap-2 border-b border-white/10 px-4 py-3">
-        <span className="h-3 w-3 rounded-full bg-[#ff5f57]" aria-hidden="true" />
-        <span className="h-3 w-3 rounded-full bg-[#febc2e]" aria-hidden="true" />
-        <span className="h-3 w-3 rounded-full bg-[#28c840]" aria-hidden="true" />
-        <span className="ml-2 text-xs text-white/30">siddhant@portfolio ~ </span>
+      <div
+        style={{
+          display: 'flex',
+          alignItems: 'center',
+          gap: '8px',
+          borderBottom: '1px solid rgba(255,255,255,0.08)',
+          padding: '10px 16px',
+        }}
+      >
+        <span
+          style={{
+            width: '12px',
+            height: '12px',
+            borderRadius: '50%',
+            backgroundColor: '#ff5f57',
+            flexShrink: 0,
+          }}
+          aria-hidden="true"
+        />
+        <span
+          style={{
+            width: '12px',
+            height: '12px',
+            borderRadius: '50%',
+            backgroundColor: '#febc2e',
+            flexShrink: 0,
+          }}
+          aria-hidden="true"
+        />
+        <span
+          style={{
+            width: '12px',
+            height: '12px',
+            borderRadius: '50%',
+            backgroundColor: '#28c840',
+            flexShrink: 0,
+          }}
+          aria-hidden="true"
+        />
+        <span style={{ marginLeft: '8px', fontSize: '11px', color: 'rgba(255,255,255,0.3)' }}>
+          siddhant@portfolio ~
+        </span>
       </div>
 
       {/* Content */}
-      <div className="p-4">{children}</div>
+      <div style={{ padding: '16px 20px' }}>{children}</div>
     </div>
   );
 }
