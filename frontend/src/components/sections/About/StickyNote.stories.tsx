@@ -1,4 +1,4 @@
-import type { Meta, StoryObj } from '@storybook/react-vite';
+import type { Meta, StoryObj } from '@storybook/react';
 import { StickyNote } from './StickyNote';
 
 const meta: Meta<typeof StickyNote> = {
