@@ -29,6 +29,9 @@ npm-debug.log*
 .DS_Store
 Thumbs.db
 
+# TypeScript build info
+*.tsbuildinfo
+
 # Storybook build
 frontend/storybook-static/
 

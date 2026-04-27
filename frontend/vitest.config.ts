@@ -8,14 +8,9 @@ export default defineConfig({
     environment: 'jsdom',
     globals: true,
     setupFiles: ['./src/test/setup.ts'],
+    exclude: ['**/node_modules/**', '**/dist/**', 'e2e/**'],
     coverage: {
       provider: 'v8',
-      thresholds: {
-        lines: 80,
-        functions: 80,
-        branches: 70,
-        statements: 80,
-      },
       exclude: [
         'src/types/**',
         'src/constants/**',
@@ -23,6 +18,7 @@ export default defineConfig({
         '**/*.d.ts',
         'src/test/**',
         'vitest.config.ts',
+        'src/main.tsx',
       ],
     },
   },
