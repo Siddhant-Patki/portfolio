@@ -53,9 +53,3 @@ jobs:
 
       - name: Build with tsup
         run: npm run build
-
-      - name: Deploy to Railway
-        if: github.ref == 'refs/heads/main' && github.event_name == 'push'
-        run: npx @railway/cli@latest up --service ${{ secrets.RAILWAY_SERVICE_NAME }}
-        env:
-          RAILWAY_TOKEN: ${{ secrets.RAILWAY_TOKEN }}
