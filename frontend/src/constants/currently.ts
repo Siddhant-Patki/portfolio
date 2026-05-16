@@ -16,6 +16,6 @@ export const CURRENTLY: CurrentlyData = {
   degree: 'M.Eng. Software Engineering for Industrial Applications',
   semester: 'Semester 2 (Summer 2026)',
   currentProject: 'Various projects',
-  learning: ['Claude technology', 'CI/CD best practices', 'Full-stack developing'],
+  learning: ['Claude technology and agents', 'CI/CD best practices', 'Full-stack developing'],
   availableFor: 'Internships & Working Student roles (Part-time)',
 };
