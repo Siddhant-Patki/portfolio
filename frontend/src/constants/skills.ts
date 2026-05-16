@@ -6,7 +6,17 @@ export interface SkillCategory {
 export const SKILLS: SkillCategory[] = [
   {
     category: 'Frontend',
-    items: ['React', 'Svelte', 'TypeScript', 'Tailwind CSS', 'Framer Motion', 'Vite', 'HTML5', 'CSS3', 'Solidity'],
+    items: [
+      'React',
+      'Svelte',
+      'TypeScript',
+      'Tailwind CSS',
+      'Framer Motion',
+      'Vite',
+      'HTML5',
+      'CSS3',
+      'Solidity',
+    ],
   },
   {
     category: 'Backend',
@@ -14,7 +24,16 @@ export const SKILLS: SkillCategory[] = [
   },
   {
     category: 'Tools & DevOps',
-    items: ['Git', 'GitHub Actions', 'Docker', 'Railway', 'Vitest', 'ESLint', 'AWS Cloud', 'Proxmox'],
+    items: [
+      'Git',
+      'GitHub Actions',
+      'Docker',
+      'Railway',
+      'Vitest',
+      'ESLint',
+      'AWS Cloud',
+      'Proxmox',
+    ],
   },
   {
     category: 'Languages',
