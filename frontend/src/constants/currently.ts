@@ -14,8 +14,8 @@ export const CURRENTLY: CurrentlyData = {
   country: 'Germany',
   university: 'Hof University of Applied Sciences',
   degree: 'M.Eng. Software Engineering for Industrial Applications',
-  semester: 'Semester 2 (Summer 2025)',
-  currentProject: 'This portfolio',
-  learning: ['Advanced TypeScript patterns', 'CI/CD best practices', 'Playwright E2E testing'],
+  semester: 'Semester 2 (Summer 2026)',
+  currentProject: 'Various projects',
+  learning: ['Advanced TypeScript patterns', 'CI/CD best practices', 'Full-stack developing'],
   availableFor: 'Internships & Working Student roles (Part-time)',
 };
