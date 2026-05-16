@@ -429,7 +429,7 @@ export function Hero({
                 >
                   {[
                     { value: 'M.Eng.', label: 'Degree' },
-                    { value: '3rd', label: 'Semester' },
+                    { value: '2nd', label: 'Semester' },
                     { value: 'DE', label: 'Germany' },
                   ].map(({ value, label }) => (
                     <div key={label}>
