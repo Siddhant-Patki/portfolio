@@ -53,3 +53,4 @@ export const PROJECTS: Project[] = [
     featured: true,
   },
 ];
+
