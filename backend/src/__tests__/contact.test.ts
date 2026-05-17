@@ -1,7 +1,7 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import request from 'supertest';
 import { supabase } from '../lib/supabase';
-import { transporter } from '../lib/mailer';
+import * as mailer from '../lib/mailer';
 import { app } from '../index';
 
 vi.mock('../lib/supabase', () => ({
@@ -9,7 +9,7 @@ vi.mock('../lib/supabase', () => ({
 }));
 
 vi.mock('../lib/mailer', () => ({
-  transporter: { sendMail: vi.fn() },
+  sendContactEmail: vi.fn(),
 }));
 
 vi.mock('dotenv/config', () => ({}));
@@ -26,7 +26,7 @@ describe('POST /api/contact', () => {
     vi.mocked(supabase.from).mockReturnValue({
       insert: vi.fn().mockResolvedValue({ error: null }),
     } as never);
-    vi.mocked(transporter.sendMail).mockResolvedValue({} as never);
+    vi.mocked(mailer.sendContactEmail).mockResolvedValue(undefined);
   });
 
   it('returns 200 on valid submission', async () => {
@@ -59,6 +59,6 @@ describe('POST /api/contact', () => {
   it('saves to DB and sends email on valid submission', async () => {
     await request(app).post('/api/contact').send(validBody);
     expect(supabase.from).toHaveBeenCalledWith('contact_submissions');
-    expect(transporter.sendMail).toHaveBeenCalledOnce();
+    expect(mailer.sendContactEmail).toHaveBeenCalledOnce();
   });
 });
