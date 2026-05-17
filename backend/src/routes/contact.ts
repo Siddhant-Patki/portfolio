@@ -2,7 +2,7 @@ import { Router } from 'express';
 import { ZodError } from 'zod';
 import { contactSchema } from '../schemas/contact';
 import { supabase } from '../lib/supabase';
-import { transporter } from '../lib/mailer';
+import { sendContactEmail } from '../lib/mailer';
 
 export const contactRouter = Router();
 
@@ -23,13 +23,7 @@ contactRouter.post('/', async (req, res, next) => {
 
     if (dbError) throw dbError;
 
-    await transporter.sendMail({
-      from: process.env['SMTP_FROM'],
-      to: process.env['CONTACT_EMAIL'],
-      subject: `Portfolio contact from ${name}`,
-      text: `Name: ${name}\nEmail: ${email}\n\n${message}`,
-      html: `<p><strong>Name:</strong> ${name}</p><p><strong>Email:</strong> ${email}</p><p>${message.replace(/\n/g, '<br>')}</p>`,
-    });
+    await sendContactEmail(name, email, message);
 
     res.json({ ok: true });
   } catch (err) {

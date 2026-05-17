@@ -1,21 +1,23 @@
-import nodemailer from 'nodemailer';
-import type SMTPTransport from 'nodemailer/lib/smtp-transport';
+import { Resend } from 'resend';
 
-const smtpOptions: SMTPTransport.Options = {
-  host: process.env['SMTP_HOST'],
-  port: Number(process.env['SMTP_PORT'] ?? 587),
-  secure: false,
-  auth: {
-    user: process.env['SMTP_USER'],
-    pass: process.env['SMTP_PASS'],
-  },
-  connectionTimeout: 10000,
-  greetingTimeout: 10000,
-  socketTimeout: 15000,
-};
+let resend: Resend | null = null;
+function getResend(): Resend {
+  if (!resend) resend = new Resend(process.env['RESEND_API_KEY']);
+  return resend;
+}
 
-// family:4 forces IPv4 — Railway's IPv6 path to smtp.gmail.com is unreachable (ENETUNREACH)
-export const transporter = nodemailer.createTransport({
-  ...smtpOptions,
-  family: 4,
-} as SMTPTransport.Options);
+export async function sendContactEmail(
+  name: string,
+  email: string,
+  message: string
+): Promise<void> {
+  const { error } = await getResend().emails.send({
+    from: 'Portfolio Contact <onboarding@resend.dev>',
+    to: process.env['CONTACT_EMAIL'] ?? '',
+    subject: `Portfolio contact from ${name}`,
+    text: `Name: ${name}\nEmail: ${email}\n\n${message}`,
+    html: `<p><strong>Name:</strong> ${name}</p><p><strong>Email:</strong> ${email}</p><p>${message.replace(/\n/g, '<br>')}</p>`,
+  });
+
+  if (error) throw new Error(error.message);
+}
