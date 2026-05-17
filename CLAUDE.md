@@ -12,7 +12,7 @@ Applications). Built as a hands-on learning project for CI/CD, testing, and back
 
 **Live URLs:**
 - Frontend: https://siddhant-patki.github.io/portfolio
-- Backend API: https://<railway-service>.up.railway.app
+- Backend API: https://portfolio-production-3355.up.railway.app
 
 ---
 
@@ -85,6 +85,19 @@ open PR → main
   → backend.yml:  tsc → lint → supertest → build → Railway deploy
 all checks pass → merge allowed
 ```
+
+### Known CI/CD Gotchas
+- `frontend.yml` and `backend.yml` use `paths:` filters — a PR only triggers the relevant
+  workflow if files in `frontend/**` or `backend/**` changed. Workflow-only changes may not
+  trigger a deploy.
+- `VITE_API_URL` GitHub secret must have NO trailing slash. Value:
+  `https://portfolio-production-3355.up.railway.app`
+- Railway watches the `main` branch (not `dev`). Changing this in Railway Settings → Source
+  would break production deploys.
+- Backend has `app.set('trust proxy', 1)` — required because Railway sits behind a proxy.
+  Removing it breaks express-rate-limit with ERR_ERL_UNEXPECTED_X_FORWARDED_FOR.
+- Backend `package-lock.json` is intentionally absent (deleted for Railway Linux compatibility).
+  The backend CI workflow must NOT use `cache-dependency-path: backend/package-lock.json`.
 
 ---
 
@@ -159,12 +172,12 @@ constant change.
 ## Current Build Phase
 
 - [x] Phase 0: CLAUDE.md + agents + repo structure
-- [ ] Phase 1: CI/CD + ESLint + Prettier + TS config
-- [ ] Phase 2: Frontend foundation (Vite + React + Tailwind + Lenis + dark theme)
-- [ ] Phase 3: Components (CustomCursor → Navbar → Footer → Hero → About → Experience → Projects → Skills → Currently → Contact)
-- [ ] Phase 4: Backend (Express + Supabase + Nodemailer + Supertest tests)
-- [ ] Phase 5: Playwright E2E
-- [ ] Phase 6: Storybook
+- [x] Phase 1: CI/CD + ESLint + Prettier + TS config
+- [x] Phase 2: Frontend foundation (Vite + React + Tailwind + Lenis + dark theme)
+- [x] Phase 3: Components (CustomCursor → Navbar → Footer → Hero → About → Experience → Projects → Skills → Currently → Contact)
+- [x] Phase 4: Backend (Express + Supabase + Nodemailer + Supertest tests)
+- [~] Phase 5: Playwright E2E (config + tests exist, coverage incomplete)
+- [~] Phase 6: Storybook (4 stories exist: TechBadge, StickyNote, ContactForm, ProjectCard)
 - [ ] Phase 7: Performance audit + mobile + final deploy
 
 Update this checklist as phases complete.
