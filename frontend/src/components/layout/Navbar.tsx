@@ -13,7 +13,6 @@ export function Navbar(): React.JSX.Element {
   const navListRef = useRef<HTMLUListElement>(null);
   const indicatorRef = useRef<HTMLDivElement>(null);
   const linkRefs = useRef<Map<string, HTMLAnchorElement>>(new Map());
-  const underlineRefs = useRef<Map<string, HTMLSpanElement>>(new Map());
 
   useEffect(() => {
     function onScroll(): void {
@@ -83,13 +82,10 @@ export function Navbar(): React.JSX.Element {
     document.getElementById(id)?.scrollIntoView({ behavior: prefersReduced ? 'auto' : 'smooth' });
   }
 
-  // Hover in: text → emerald, underline expands from center
   function onLinkEnter(id: string): void {
     if (prefersReduced) return;
     const el = linkRefs.current.get(id);
-    const ul = underlineRefs.current.get(id);
     if (el) gsap.to(el, { color: '#34d399', scale: 1.05, duration: 0.22, ease: 'power2.out' });
-    if (ul) gsap.to(ul, { scaleX: 1, opacity: 1, duration: 0.25, ease: 'power2.out' });
   }
 
   // Magnetic drift while cursor moves over link
@@ -103,11 +99,9 @@ export function Navbar(): React.JSX.Element {
     gsap.to(el, { x: dx, y: dy, duration: 0.25, ease: 'power2.out' });
   }
 
-  // Hover out: elastic snap-back, underline collapses
   function onLinkLeave(id: string): void {
     if (prefersReduced) return;
     const el = linkRefs.current.get(id);
-    const ul = underlineRefs.current.get(id);
     const isActive = activeSection === id;
     if (el)
       gsap.to(el, {
@@ -118,7 +112,6 @@ export function Navbar(): React.JSX.Element {
         duration: 0.55,
         ease: 'elastic.out(1, 0.6)',
       });
-    if (ul) gsap.to(ul, { scaleX: 0, opacity: 0, duration: 0.18, ease: 'power2.in' });
   }
 
   return (
@@ -206,33 +199,11 @@ export function Navbar(): React.JSX.Element {
                       fontWeight: 500,
                       color: isActive ? '#34d399' : 'rgba(209,213,219,0.65)',
                       textDecoration: 'none',
-                      display: 'inline-flex',
-                      flexDirection: 'column',
-                      alignItems: 'center',
                       cursor: 'pointer',
-                      gap: '3px',
                     }}
                     aria-current={isActive ? 'location' : undefined}
                   >
                     {link.label}
-                    {/* Hover underline — expands from center */}
-                    <span
-                      ref={(el) => {
-                        if (el) underlineRefs.current.set(id, el);
-                      }}
-                      aria-hidden="true"
-                      style={{
-                        display: 'block',
-                        height: '1.5px',
-                        width: '100%',
-                        backgroundColor: '#34d399',
-                        borderRadius: '1px',
-                        transform: 'scaleX(0)',
-                        transformOrigin: 'center',
-                        opacity: 0,
-                        boxShadow: '0 0 6px rgba(52,211,153,0.5)',
-                      }}
-                    />
                   </a>
                 </li>
               );
